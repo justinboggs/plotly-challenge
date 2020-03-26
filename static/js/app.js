@@ -1,72 +1,95 @@
-d3.json("samples.json").then((data) => {
-function getName(idNum) {
-    return idNum.names
+function getMeta(samples) {
+    d3.json("samples.json").then((data) => {
+        var mData = data.metadata;
+
+        var idFilter = mData.filter(sampleID => sampleID.id == samples);
+        var IDnum = idFilter[0];
+
+        var panelData = d3.select("#sample-metadata");
+        panelData.html("");
+
+        Object.entries(IDnum).forEach(([key, value]) => {
+            panelData.append("h6").text(`${key.toUpperCase()}: ${value}`);
+            // panelData.append(console.log(`${key}: ${value}`));
+        });
+    });
+};
+
+function bubbleData(samples) {
+    d3.json("samples.json").then((data) => {
+        var bubSample = data.samples;
+        
+        var idFilter = bubSample.filter(sampleID => sampleID.id == samples);
+        var IDnum = idFilter[0];
+
+        var otuids = IDnum.otu_ids;
+        var otulabels = IDnum.otu_labels;
+        var sampleVals = IDnum.sample_values;
+
+        var bubbleLayout = {
+            title: "Bacteria Cultures Per Sample",
+            margin: { t: 0},
+            hovermode: "closest",
+            xaxis:  {title: "OTU ID" },
+            margin: { t: 30 }
+        };
+        var bubbleData = [{
+            x: otuids,
+            y: sampleVals,
+            text: otulabels,
+            mode: "markers",
+            marker: {
+                size: sampleVals,
+                color: otuids,
+                colorscale: "Earth"
+            }
+        }];
+        
+        Plotly.newPlot("bubble", bubbleData, bubbleLayout);
+        
+        var yticks = otuids.slice(0, 10).map(otuID => `OTU ${otuID}`).reverse();
+        var barData = [{
+            y: yticks,
+            x: sampleVals.slice(0, 10).reverse(),
+            text: otulabels.slice(0, 10).reverse(),
+            type: "bar",
+            orientation: "h",
+        }];
+        var barLayout = {
+            title: "Top 10 Bacteria Cultures Found",
+            margin: {
+                t: 30,
+                l: 150
+            }
+        };
+        Plotly.newPlot("bar", barData, barLayout);
+
+    });
+};
+
+function init() {
+    // Grab a reference to the dropdown select element
+    var selector = d3.select("#selDataset");
+    // Use the list of sample names to populate the select options
+    d3.json("samples.json").then((data) => {
+        var sampleNames = data.names;
+        sampleNames.forEach((sample) => {
+            selector
+                .append("option")
+                .text(sample)
+                .property("value", sample);
+        });
+        // Use the first sample from the list to build the initial plots
+        var firstSample = sampleNames[0];
+        bubbleData(firstSample);
+        getMeta(firstSample);
+    });
 }
-console.log(data)
 
-    d3.selectAll("#selDataset").on("change", updatePlotly);
-
-    function updatePlotly() {
-        // Use D3 to select the dropdown menu
-        var dropdownMenu = d3.select("#selDataset");
-        // Assign the value of the dropdown menu option to a variable
-        var dataset = dropdownMenu.property(idNum.names);
-
-
-    };
-
-    var trace1 = {
-        x: data.names,
-        y: data.age,
-        type: "line",
-        name: "ID vs Age",
-        boxpoints: "all"
-    };
-
-    var data = [trace1];
-
-    var layout = {
-        title: "Some random title",
-        xaxis: { title: "ID" },
-        yaxis: { title: "Age" }
-    };
-
-    Plotly.newPlot("bar", data, layout);
-
-    var trace1 = {
-        x: data.names,
-        y: data.age,
-        type: "line",
-        name: "ID vs Age",
-        boxpoints: "all"
-    };
-
-    var data = [trace1];
-
-    var layout = {
-        title: "Some random title",
-        xaxis: { title: "ID" },
-        yaxis: { title: "Age" }
-    };
-
-    Plotly.newPlot("gauge", data, layout);
-
-    var trace1 = {
-        x: data.names,
-        y: data.age,
-        type: "line",
-        name: "ID vs Age",
-        boxpoints: "all"
-    };
-
-    var data = [trace1];
-
-    var layout = {
-        title: "Some random title",
-        xaxis: { title: "ID" },
-        yaxis: { title: "Age" }
-    };
-
-    Plotly.newPlot("bubble", data, layout);
-
-});
+function optionChanged(newSample) {
+    // Fetch new data each time a new sample is selected
+    bubbleData(newSample);
+    getMeta(newSample);
+}
+// Initialize the dashboard
+init();
