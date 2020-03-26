@@ -8,12 +8,10 @@ console.log(data)
 
     function updatePlotly() {
         // Use D3 to select the dropdown menu
-        var dropdownMenu = d3.select("#selectOption");
+        var dropdownMenu = d3.select("#selDataset");
         // Assign the value of the dropdown menu option to a variable
-        var dataset = dropdownMenu.property("value");
+        var dataset = dropdownMenu.property(idNum.names);
 
-        // Initialize x and y arrays
-        var x = [];
 
     };
 
