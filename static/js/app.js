@@ -42,7 +42,7 @@ function bubbleData(samples) {
             marker: {
                 size: sampleVals,
                 color: otuids,
-                colorscale: "Bluered"
+                colorscale: "Portland"
             }
         }];
         
@@ -57,7 +57,7 @@ function bubbleData(samples) {
             orientation: "h",
             marker: {
                 color: otuids,
-                colorscale: 'Bluered',
+                colorscale: 'Portland',
             }
         }];
         var barLayout = {
