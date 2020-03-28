@@ -1,3 +1,4 @@
+// build function to get the metadata for demographic table
 function getMeta(samples) {
     d3.json("samples.json").then((data) => {
         var mData = data.metadata;
@@ -10,11 +11,11 @@ function getMeta(samples) {
 
         Object.entries(IDnum).forEach(([key, value]) => {
             panelData.append("h6").text(`${key.toUpperCase()}: ${value}`);
-            // panelData.append(console.log(`${key}: ${value}`));
         });
     });
 };
 
+// plot the charts
 function bubbleData(samples) {
     d3.json("samples.json").then((data) => {
         var bubSample = data.samples;
@@ -41,7 +42,7 @@ function bubbleData(samples) {
             marker: {
                 size: sampleVals,
                 color: otuids,
-                colorscale: "Earth"
+                colorscale: "Bluered"
             }
         }];
         
@@ -54,6 +55,10 @@ function bubbleData(samples) {
             text: otulabels.slice(0, 10).reverse(),
             type: "bar",
             orientation: "h",
+            marker: {
+                color: otuids,
+                colorscale: 'Bluered',
+            }
         }];
         var barLayout = {
             title: "Top 10 Bacteria Cultures Found",
@@ -67,10 +72,11 @@ function bubbleData(samples) {
     });
 };
 
+// build the function to pull the data based on dropdown selection
 function init() {
-    // Grab a reference to the dropdown select element
+    // grab a reference to the dropdown select element
     var selector = d3.select("#selDataset");
-    // Use the list of sample names to populate the select options
+    // use the list of sample names to populate the select options
     d3.json("samples.json").then((data) => {
         var sampleNames = data.names;
         sampleNames.forEach((sample) => {
@@ -79,17 +85,17 @@ function init() {
                 .text(sample)
                 .property("value", sample);
         });
-        // Use the first sample from the list to build the initial plots
+        // use the first sample from the list to build the initial plots
         var firstSample = sampleNames[0];
         bubbleData(firstSample);
         getMeta(firstSample);
     });
 }
 
+// build the function to grab new data each time a new sample is selected
 function optionChanged(newSample) {
-    // Fetch new data each time a new sample is selected
     bubbleData(newSample);
     getMeta(newSample);
 }
-// Initialize the dashboard
+// initialize the dashboard
 init();
